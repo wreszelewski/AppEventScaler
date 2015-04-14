@@ -46,11 +46,34 @@ class StatsFacade(object):
 
 class AppFacade(object):
 
-    def register(self):
-        pass
+    def __init__(self, config):
+        
+        self.host = config['lb']['host']
+        self.port = config['lb']['port']
+        self.slots = config['lb']['slots']
 
-    def unregister(self):
-        pass
+        self.http_client = AsyncHTTPClient()
+
+    @coroutine
+    def register(self, backend, host, port):
+        response = yield self.http_client.fetch("http://{}:{}/register?backend={}&host={}&port={}&instances={}".format(
+            self.host,
+            self.port,
+            backend,
+            host,
+            port,
+            self.slots
+        ))
+
+    @coroutine
+    def unregister(self, backend, host, port):
+        response = yield self.http_client.fetch("http://{}:{}/unregister?backend={}&host={}&port={}".format(
+            self.host,
+            self.port,
+            backend,
+            host,
+            port
+        ))
 
     def run(self):
         pass
