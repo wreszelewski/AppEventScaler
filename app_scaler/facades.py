@@ -1,35 +1,61 @@
+from tornado.httpclient import AsyncHTTPClient
+from tornado.gen import coroutine
+import json
+import boto3
 
 class AppRepoFacade(object):
 
-    def put(obj):
+    def put(self, obj):
         pass
 
-    def get(path):
+    def get(self, path):
         return None
 
 
 class VManagerFacade(object):
 
-    def create_vm():
-        pass
+    def __init__(self, config):
+        self.conf = config
+        self.ec2 = boto3.client('ec2', **self.conf['ec2']['access'])
 
-    def destroy_vm():
-        pass
+    def create_vm(self):
+        instance = self.ec2.run_instances(**self.conf['ec2']["vm_params"])
+        return instance
 
-    def check_vm():
-        pass
+    def destroy_vm(self, vm_id):
+        self.ec2.terminate_instances(InstanceIds=[vm_id])
+
+    def check_vm(self, vm_id):
+        status = self.ec2.describe_instances(InstanceIds = [vm_id])['Reservations'][0]['Instances'][0]['State']['Name']
+        return status
 
 class StatsFacade(object):
 
-    def get_stats():
-        pass
+    def __init__(self, config):
+        
+        self.host = config['stats']['host']
+        self.port = config['stats']['port']
+
+        self.http_client = AsyncHTTPClient()
+
+    @coroutine
+    def get_stats(self):
+        response = yield self.http_client.fetch("http://{}:{}/stats".format(self.host, self.port))
+        stats = json.loads(response.body.decode('utf-8'))
+        return stats
 
 class AppFacade(object):
 
-    def register():
+    def register(self):
         pass
 
-    def unregister():
+    def unregister(self):
+        pass
+
+    def run(self):
+        pass
+
+    def stop(self):
         pass
 
 

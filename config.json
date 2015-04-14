@@ -1,0 +1,21 @@
+{
+  "ec2": {
+      "vm_params" : {
+          "ImageId" : "",
+          "MinCount": 1,
+          "MaxCount": 1,
+          "KeyName": "",
+          "SecurityGroups": [ "launch-wizard-1" ],
+          "InstanceType": "t2.micro"
+      },
+      "access" : {
+          "aws_access_key_id":"",
+          "aws_secret_access_key":"",
+          "region_name": "eu-west-1"
+      }
+  },
+  "stats": {
+      "host" : "52.16.223.150",
+      "port" : "3260"
+  }
+}
