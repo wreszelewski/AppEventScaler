@@ -1,8 +1,12 @@
 import json
+import os
 
 class Config(object):
 
-    def __init__(self, config_path="config.json"):
+    def __init__(self, config_path=None):
+
+        if config_path is None:
+           config_path = os.path.join("/etc", "aesc_minion.conf")
 
         with open(config_path, "r") as cfg:
             self.conf = json.load(cfg)

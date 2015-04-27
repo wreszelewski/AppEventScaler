@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import tornado.ioloop
 import tornado.web
 from app_scaler.apis import RemoteAppApi
