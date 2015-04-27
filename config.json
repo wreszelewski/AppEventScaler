@@ -9,8 +9,8 @@
           "InstanceType": "t2.micro"
       },
       "access" : {
-          "aws_access_key_id":"AKIAI2PPSJIKV6QDBGAQ",
-          "aws_secret_access_key":"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",
+          "aws_access_key_id":"",
+          "aws_secret_access_key":"",
           "region_name": "eu-west-1"
       }
   },
@@ -19,11 +19,11 @@
       "path_prefix": "test"
   },
   "stats": {
-      "host" : "52.16.223.150",
+      "host" : "",
       "port" : "3260"
   },
   "lb": {
-      "host" : "52.16.223.150",
+      "host" : "",
       "port" : "3260",
       "slots": 20
   }
