@@ -13,14 +13,18 @@ class ServerAppApi(object):
 class RemoteAppApi(tornado.web.RequestHandler):
 
     def initialize(self, repo_facade):
-        self.repo_facade = repo_facade
+        self.app_repo = repo_facade
 
-    def get(self, action, name, java_class):
-       
+    def get(self, *args, **kwargs):
+
+        action = self.get_argument("action")
+        name = self.get_argument("name")
+        java_class = self.get_argument("java_class") 
         obj = self.app_repo.get(name)
         app_path = os.path.join('/tmp', 'apps', name) 
         with open(app_path, 'wb') as out:
             out.write(obj)
-        command = 'sudo rund -cp {} {} &'.format(name, class)
+        command = 'sudo rund -cp {} {} &'.format(app_path, java_class)
+        print(command)
         os.popen(command)
 

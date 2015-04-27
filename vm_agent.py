@@ -1,11 +1,15 @@
 import tornado.ioloop
 import tornado.web
 from app_scaler.apis import RemoteAppApi
+from app_scaler.facades import AppRepoFacade
+from app_scaler.config import Config
 
+config = Config()
+repo_facade = AppRepoFacade(config)
 application = tornado.web.Application([
-    (r"/", RemoteAppApi),
+    (r"/", RemoteAppApi, dict(repo_facade=repo_facade)),
 ])
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     application.listen(80)
     tornado.ioloop.IOLoop.instance().start()
