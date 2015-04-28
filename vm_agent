@@ -4,6 +4,7 @@ import tornado.web
 from app_scaler.apis import RemoteAppApi
 from app_scaler.facades import AppRepoFacade
 from app_scaler.config import Config
+import os
 
 config = Config()
 repo_facade = AppRepoFacade(config)
@@ -12,5 +13,7 @@ application = tornado.web.Application([
 ])
 
 if __name__ == "__main__":
-    application.listen(80)
+    if not os.path.exists('/tmp/apps'):
+        os.makedirs('/tmp/apps')
+    application.listen(1000)
     tornado.ioloop.IOLoop.instance().start()
