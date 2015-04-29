@@ -90,10 +90,20 @@ class AppFacade(object):
             port
         ))
 
-    def run(self):
-        pass
+    @coroutine
+    def run(self, vm_agent, package, java_class):
+        addr = "http://{}:1000/?action=start&name={}&java_class={}".format(
+            vm_agent,
+            package,
+            java_class
+        )
+        print(addr)
+        response = yield self.http_client.fetch(addr)
 
-    def stop(self):
-        pass
+    @coroutine
+    def stop(self, vm_agent):
+        response = yield self.http_client.fetch("http://{}:1000/?action=stop&name=any&java_class=any".format(
+            vm_agent
+        ))
 
 
