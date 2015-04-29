@@ -1,6 +1,13 @@
 import tornado.web
 import tornado.ioloop
 import os
+from tornado import template
+
+class GUI(tornado.web.RequestHandler):
+
+    def get(self):
+        loader = template.Loader("app_scaler/templates/")
+        self.write(loader.load("index.html").generate())
 
 class ServerAppApi(object):
 

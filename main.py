@@ -2,6 +2,7 @@ import tornado.ioloop
 import tornado.web
 from app_scaler.rem import REM
 from app_scaler.config import Config
+from app_scaler.apis import GUI
 
 class EventScalerApp(tornado.web.Application):
 
@@ -13,8 +14,10 @@ class EventScalerApp(tornado.web.Application):
         main_thread = REM(config)
         main_thread.start()
 
-application = EventScalerApp()
+application = EventScalerApp([
+                  (r"/", GUI),
+])
 
 if __name__ == "__main__":
-    application.listen(8888)
+    application.listen(8080)
     tornado.ioloop.IOLoop.instance().start() 
