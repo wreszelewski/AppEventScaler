@@ -63,6 +63,10 @@ class REM(PeriodicCallback):
                 if vm in self.app_vms[backend]:
                     self.app_vms[backend].remove(vm)
 
+        if len(self.free_pool) > self.config['ec2']['max_spare_vms']:
+            for i in range(len(self.free_pool) - self.config['ec2']['max_spare_vms']):
+                vm = self.free_pool.pop()
+                self.vmgr.destroy_vm(vm['Instances'][0]['InstanceId'])
 
     @coroutine
     def run(self):
@@ -77,14 +81,18 @@ class REM(PeriodicCallback):
                     stats[backend] += self.config['lb']['slots']    
                     yield self.__register_app(backend, vm)
                 elif vm['ScalerState'] == 'unregistered':
-                    yield self.__stop_app(vm)
+                    yield self.__stop_app(backend, vm)
 
         self.__clear_backends()
 
         for app in stats:
             if stats[app] <= 0:
-                instance = self.vmgr.create_vm()
-                instance['ScalerState'] = 'initialized'
+                instance = None
+                if len(self.free_pool) == 0:
+                    instance = self.vmgr.create_vm()
+                else:
+                    instance = self.free_pool.pop()
+                instance['ScalerState'] = 'initialized' 
                 self.app_vms[app].append(instance)
                 
             elif stats[app] > 2*self.config['lb']['slots']:
@@ -92,14 +100,3 @@ class REM(PeriodicCallback):
                     if vm['ScalerState'] == 'ready':
                         yield self.__unregister_app(app, vm)
                         break
-        
-        #if self.instance is None:
-        #    self.instance = self.vmgr.create_vm()
-        #else:
-        #    state = self.vmgr.check_vm(self.instance.id) 
-        #    print(state)
-        #yield self.app_ctl.register('tescik.localhost.com', '127.0.0.3', '80')
-        #if stats['tescik.localhost.com']>50:
-        #    yield self.app_ctl.unregister('tescik.localhost.com', '127.0.0.3', '80')
-    
-
