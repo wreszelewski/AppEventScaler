@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 from app_scaler.rem import REM
 from app_scaler.config import Config
-from app_scaler.apis import GUI
+from app_scaler.apis import GUI, ServerAppApi
 
 class EventScalerApp(tornado.web.Application):
 
@@ -16,6 +16,7 @@ class EventScalerApp(tornado.web.Application):
 
 application = EventScalerApp([
                   (r"/", GUI),
+                  (r"/api", ServerAppApi),
 ])
 
 if __name__ == "__main__":

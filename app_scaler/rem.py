@@ -3,11 +3,14 @@ from tornado.ioloop import PeriodicCallback
 from tornado.gen import coroutine
 import sys
 from collections import defaultdict
+import redis
+import pickle
 
 class REM(PeriodicCallback):
     
     def __init__(self, config):
         super(REM, self).__init__(self.run, 20*1000)
+        self.redis = redis.StrictRedis()
         self.config = config
         self.stats_src = StatsFacade(config)
         self.vmgr = VManagerFacade(config)
@@ -22,7 +25,8 @@ class REM(PeriodicCallback):
     @coroutine
     def __run_app(self, backend, vm):
         try:
-            yield self.app_ctl.run(vm['Instances'][0]['PrivateIpAddress'], 'server.jar', 'ServerJIQ')
+            data = pickle.loads(self.redis.get(backend))
+            yield self.app_ctl.run(vm['Instances'][0]['PrivateIpAddress'], data[0], data[1])
             vm['ScalerState'] = 'running'
             print("New virtual machine is available for backend {}".format(backend))
         except:

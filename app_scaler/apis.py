@@ -1,7 +1,12 @@
 import tornado.web
+from tornado.gen import coroutine
 import tornado.ioloop
 import os
 from tornado import template
+import redis
+import pickle
+from app_scaler.facades import AppRepoFacade, AppFacade
+from app_scaler.config import Config
 
 class GUI(tornado.web.RequestHandler):
 
@@ -9,13 +14,21 @@ class GUI(tornado.web.RequestHandler):
         loader = template.Loader("app_scaler/templates/")
         self.write(loader.load("index.html").generate())
 
-class ServerAppApi(object):
+class ServerAppApi(tornado.web.RequestHandler):
 
-    def is_available(app):
-        pass
-
-    def run_app(app):
-        pass
+    @coroutine
+    def post(self):
+        config = Config()
+        repo = AppRepoFacade(config)
+        app = AppFacade(config)
+        db = redis.StrictRedis()        
+        f_info = self.request.files['fileToUpload'][0]
+        f_name = f_info['filename']
+        java_class = self.get_argument("javaClass")
+        backend = self.get_argument("backendName")
+        db.set(backend, pickle.dumps([f_name, java_class]))
+        repo.put(f_name, f_info['body'])
+        yield app.simple_register(backend)
 
 class RemoteAppApi(tornado.web.RequestHandler):
 
