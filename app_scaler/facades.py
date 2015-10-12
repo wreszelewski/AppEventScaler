@@ -82,11 +82,13 @@ class AppFacade(object):
 
     @coroutine
     def simple_register(self, backend):
+        print("Register")
         response = yield self.http_client.fetch("http://{}:{}/register?backend={}".format(
             self.host,
             self.port,
             backend
         ))
+        print(response)
 
     @coroutine
     def unregister(self, backend, host, port):

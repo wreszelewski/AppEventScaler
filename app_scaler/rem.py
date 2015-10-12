@@ -43,10 +43,14 @@ class REM(PeriodicCallback):
             print("Problem stopping app {}".format(backend))
             
     @coroutine
+    def __wait(self, backend, vm):
+        vm['ScalerState'] = 'ready'
+
+    @coroutine
     def __register_app(self, backend, vm):
         try:
             yield self.app_ctl.register(backend, vm['Instances'][0]['PrivateIpAddress'], '8080')
-            vm['ScalerState'] = 'ready'
+            vm['ScalerState'] = 'ok'
             print("New app is available for backend {}".format(backend))
         except:
             print("Problem registering app {}".format(backend))
@@ -83,6 +87,9 @@ class REM(PeriodicCallback):
                     yield self.__run_app(backend, vm)
                 elif vm['ScalerState'] == 'running':
                     stats[backend] += self.config['lb']['slots']    
+                    yield self.__wait(backend, vm)
+                elif vm['ScalerState'] == 'ready':
+                    stats[backend] += self.config['lb']['slots']    
                     yield self.__register_app(backend, vm)
                 elif vm['ScalerState'] == 'unregistered':
                     yield self.__stop_app(backend, vm)
@@ -99,8 +106,8 @@ class REM(PeriodicCallback):
                 instance['ScalerState'] = 'initialized' 
                 self.app_vms[app].append(instance)
                 
-            elif stats[app] > 2*self.config['lb']['slots']:
-                for vm in self.app_vms[app]:
-                    if vm['ScalerState'] == 'ready':
-                        yield self.__unregister_app(app, vm)
-                        break
+            #elif stats[app] > 2*self.config['lb']['slots']:
+            #    for vm in self.app_vms[app]:
+            #        if vm['ScalerState'] == 'ready':
+            #            yield self.__unregister_app(app, vm)
+            #            break
